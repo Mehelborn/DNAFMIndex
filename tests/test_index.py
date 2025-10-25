@@ -19,7 +19,6 @@ def test_index_creation_from_fasta_file(config):
     index = dfi.Index(config, "./tests/index.awfmi", fasta_path="./tests/seq1.fasta")
     assert index is not None
 
-
 def test_read_index_from_file():
     index = dfi.read_index_from_file("./tests/index.awfmi", False)
     assert index is not None
@@ -42,6 +41,15 @@ def test_parallel_search_locate(index):
     kmer_search_list.parallel_search_locate(index)
     for i in range(kmer_search_list.count):
         assert kmer_search_list.kmer_search_data[i].kmer_string.decode() in KMERS
+
+def test_parallel_search_count(config):
+    index = pfmi.Index(config, "./tests/index.awfmi", SEQUENCE)
+    kmer_search_list: pfmi.KmerSearchList = pfmi.KmerSearchList(5)
+    kmer_search_list.full_list(["CTG", "AAT"], [3, 3])
+    pfmi.parallel_search_count(index, kmer_search_list, 4)
+    ksd = kmer_search_list._kmer_search_list.contents.kmer_search_data[0]
+    logger.info(ksd.count)
+    logger.info(ksd.kmer_string)
 
 
 def test_parallel_search_count(index):
