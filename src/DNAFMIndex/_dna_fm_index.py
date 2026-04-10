@@ -58,6 +58,8 @@ class IndexConfiguration:
 
     @suffix_array_compression_ratio.setter
     def suffix_array_compression_ratio(self, value: int) -> None:
+	if not isinstance(value, int) or value <=0:
+                raise ValueError("suffix_array_compression_ratio must be a positive integer, recommended value=8")
         self._config.suffix_array_compression_ratio = value
 
     @property
@@ -66,7 +68,10 @@ class IndexConfiguration:
 
     @kmer_length_in_seed_table.setter
     def kmer_length_in_seed_table(self, value: int) -> None:
+	if not isinstance(value, int) or value <=0:
+		raise ValueError("kmer_length_in_seed_table must be a positive integer, recommended value=12")
         self._config.kmer_length_in_seed_table = value
+
 
     @property
     def alphabet_type(self) -> int:
@@ -74,7 +79,9 @@ class IndexConfiguration:
 
     @alphabet_type.setter
     def alphabet_type(self, value: int) -> None:
-        self._config.alphabet_type = value
+	if not isinstance(value, int) or value not in {1, 2, 3}:
+		raise ValueError("alphabet_type takes values 1, 2 or 3")
+	self._config.alphabet_type = value
 
     @property
     def keep_suffix_array_in_memory(self) -> bool:
@@ -111,8 +118,13 @@ class Index:
         index_ptr: ctypes._Pointer | None = None,
     ) -> None:
         if not index_ptr:
-            if not all(( config.alphabet_type, config.keep_suffix_array_in_memory,
-                    config.kmer_length_in_seed_table)):  # fmt: skip
+	    if any(v is None for v in (
+        	config.alphabet_type,
+        	config.suffix_array_compression_ratio,
+       		config.keep_suffix_array_in_memory,
+        	config.kmer_length_in_seed_table,
+        	config.store_original_sequence,
+	    )):
                 raise ValueError("Index configuration is not fully initialized.")
 
             if os.path.exists(file_path):
