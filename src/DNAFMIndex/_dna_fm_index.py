@@ -112,8 +112,7 @@ class Index:
     ) -> None:
         if not index_ptr:
             if not all(( config.alphabet_type, config.keep_suffix_array_in_memory,
-                    config.kmer_length_in_seed_table, config.store_original_sequence,
-                    config.suffix_array_compression_ratio)):  # fmt: skip
+                    config.kmer_length_in_seed_table)):  # fmt: skip
                 raise ValueError("Index configuration is not fully initialized.")
 
             if os.path.exists(file_path):
