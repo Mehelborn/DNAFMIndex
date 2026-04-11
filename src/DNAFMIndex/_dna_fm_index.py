@@ -72,7 +72,6 @@ class IndexConfiguration:
 		raise ValueError("kmer_length_in_seed_table must be a positive integer, recommended value=12")
         self._config.kmer_length_in_seed_table = value
 
-
     @property
     def alphabet_type(self) -> int:
         return self._config.alphabet_type
@@ -81,7 +80,7 @@ class IndexConfiguration:
     def alphabet_type(self, value: int) -> None:
 	if not isinstance(value, int) or value not in {1, 2, 3}:
 		raise ValueError("alphabet_type takes values 1, 2 or 3")
-	self._config.alphabet_type = value
+        self._config.alphabet_type = value
 
     @property
     def keep_suffix_array_in_memory(self) -> bool:
