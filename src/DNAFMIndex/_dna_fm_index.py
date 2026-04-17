@@ -58,6 +58,10 @@ class IndexConfiguration:
 
     @suffix_array_compression_ratio.setter
     def suffix_array_compression_ratio(self, value: int) -> None:
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError(
+                "suffix_array_compression_ratio must be a positive integer, recommended value=8"
+            )
         self._config.suffix_array_compression_ratio = value
 
     @property
@@ -66,6 +70,10 @@ class IndexConfiguration:
 
     @kmer_length_in_seed_table.setter
     def kmer_length_in_seed_table(self, value: int) -> None:
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError(
+                "kmer_length_in_seed_table must be a positive integer, recommended value=12"
+            )
         self._config.kmer_length_in_seed_table = value
 
     @property
@@ -74,6 +82,8 @@ class IndexConfiguration:
 
     @alphabet_type.setter
     def alphabet_type(self, value: int) -> None:
+        if not isinstance(value, int) or value not in {1, 2, 3}:
+            raise ValueError("alphabet_type takes values 1, 2 or 3")
         self._config.alphabet_type = value
 
     @property
@@ -111,9 +121,16 @@ class Index:
         index_ptr: ctypes._Pointer | None = None,
     ) -> None:
         if not index_ptr:
-            if not all(( config.alphabet_type, config.keep_suffix_array_in_memory,
-                    config.kmer_length_in_seed_table, config.store_original_sequence,
-                    config.suffix_array_compression_ratio)):  # fmt: skip
+            if any(
+                v is None
+                for v in (
+                    config.alphabet_type,
+                    config.suffix_array_compression_ratio,
+                    config.keep_suffix_array_in_memory,
+                    config.kmer_length_in_seed_table,
+                    config.store_original_sequence,
+                )
+            ):
                 raise ValueError("Index configuration is not fully initialized.")
 
             if os.path.exists(file_path):
@@ -307,10 +324,10 @@ def read_index_from_file(file_path: str, keep_suffix_array_in_memory: bool = Fal
 
 class KmerSearchList:
     def __init__(self, capacity: int) -> None:
-        if capacity <= 0:
-            raise ValueError("Invalid capacity")
+        if not isinstance(capacity, int) or capacity <= 0:
+            raise ValueError("Capacity should be a positive integer.")
         if (_ksl := _dfi._create_kmer_search_list(capacity)) is None:
-            raise Exception("Something went wrong while creating the search list")
+            raise Exception("Error: kmer search list is None")
         self._kmer_search_list = _ksl
 
     def fill(self, kmers: list[str]):
@@ -325,7 +342,7 @@ class KmerSearchList:
             self.kmer_search_data[i].kmer_length = len(kmer)
         self._kmer_search_list.contents.count = num_kmers
 
-    def parallel_search_locate(self, index: Index, num_threads: int = 4):
+    def parallel_search_locate(self, index: Index, num_threads: int):
         self.check_count()
         return_code = _dfi._parallel_search_locate(
             index._index, self._kmer_search_list, num_threads
@@ -333,7 +350,7 @@ class KmerSearchList:
         if return_code == ReturnCode.FileReadFail:
             raise Exception("The file could not be read sucessfully.")
 
-    def parallel_search_count(self, index: Index, num_threads: int = 4):
+    def parallel_search_count(self, index: Index, num_threads: int):
         self.check_count()
         _dfi._parallel_search_count(index._index, self._kmer_search_list, num_threads)
 
