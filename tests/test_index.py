@@ -39,7 +39,7 @@ def test_create_kmer_search_list():
 def test_parallel_search_locate(index):
     kmer_search_list = dfi.KmerSearchList(5)
     kmer_search_list.fill(KMERS)
-    kmer_search_list.parallel_search_locate(index)
+    kmer_search_list.parallel_search_locate(index, 4)
     for i in range(kmer_search_list.count):
         assert kmer_search_list.kmer_search_data[i].kmer_string.decode() in KMERS
 
@@ -47,7 +47,7 @@ def test_parallel_search_locate(index):
 def test_parallel_search_count(index):
     kmer_search_list = dfi.KmerSearchList(5)
     kmer_search_list.fill(KMERS)
-    kmer_search_list.parallel_search_count(index)
+    kmer_search_list.parallel_search_count(index, 4)
     kmers_count = (4, 1)
     for i in range(kmer_search_list.count):
         assert kmer_search_list.kmer_search_data[i].count in kmers_count
