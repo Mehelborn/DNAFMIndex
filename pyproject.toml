@@ -8,7 +8,7 @@ authors = [
     {name = "mehelborn", email = "mr.4uldum@gmail.com"},
     {name = "notc19", email = "ael.mak1504@gmail.com"}
 ]
-version = "0.1.0"
+version = "1.0.0"
 description = "Python wrapper for AvxWindowFmIndex library"
 readme = "README.md"
 license = {file = "LICENSE"}
